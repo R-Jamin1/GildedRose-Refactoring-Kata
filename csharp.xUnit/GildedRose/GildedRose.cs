@@ -2,6 +2,7 @@
 
 namespace GildedRoseKata;
 
+
 public class GildedRose
 {
     IList<Item> Items;
@@ -13,77 +14,81 @@ public class GildedRose
 
     public void UpdateQuality()
     {
-        for (var i = 0; i < Items.Count; i++)
+
+        foreach (Item item in Items)
         {
-            if (Items[i].Name != "Aged Brie" && Items[i].Name != "Backstage passes to a TAFKAL80ETC concert")
+            //Montant dont va varier la qualité d'un produit à la fin de la journée
+            int qualityVariation = 0;
+
+            //Ce booleen sert à definir si on update la qualité d'un item ou non.
+            //Ce serait un parfait attribut de la classe Item, mais le gobelin n'est pas d'accord
+            bool fixedQuality = false;
+
+            //Je traite d'abord les cas spécifiques puis le cas général pour simplifier les conditions dans les if et la lecture
+
+            //ToLower pour eviter les problèmes de majuscule qui arriveront forcément avec des produits rentrés à la main
+            if (item.Name.ToLower() == "Sulfuras, Hand of Ragnaros".ToLower())
             {
-                if (Items[i].Quality > 0)
+                //Pas de date de peremption pour Sulfuras
+                fixedQuality = true;
+            }
+            else if (item.Name.ToLower() == "Aged Brie".ToLower())
+            {
+                item.SellIn--;
+                qualityVariation = 1;                
+            }
+            //J'utilise un Contain pour pouvoir prendre en charge des backstage passes pour d'autres concerts que celui en exemple            
+            else if (item.Name.ToLower().Contains("Backstage passes".ToLower()))
+            {
+                item.SellIn--;
+                if (item.SellIn > 10)
                 {
-                    if (Items[i].Name != "Sulfuras, Hand of Ragnaros")
-                    {
-                        Items[i].Quality = Items[i].Quality - 1;
-                    }
+                    qualityVariation = 1;
+                }
+                else if (item.SellIn <= 10 && item.SellIn > 5)
+                {
+                    qualityVariation = 2;
+                }
+                else if (item.SellIn <= 5 && item.SellIn > 0)
+                {
+                    qualityVariation = 3;
+                }
+                else
+                {
+                    qualityVariation = 0;
+                    item.Quality = 0;
                 }
             }
             else
             {
-                if (Items[i].Quality < 50)
+                item.SellIn--;
+                if (item.Name.ToLower().Contains("Conjured".ToLower()))
                 {
-                    Items[i].Quality = Items[i].Quality + 1;
-
-                    if (Items[i].Name == "Backstage passes to a TAFKAL80ETC concert")
-                    {
-                        if (Items[i].SellIn < 11)
-                        {
-                            if (Items[i].Quality < 50)
-                            {
-                                Items[i].Quality = Items[i].Quality + 1;
-                            }
-                        }
-
-                        if (Items[i].SellIn < 6)
-                        {
-                            if (Items[i].Quality < 50)
-                            {
-                                Items[i].Quality = Items[i].Quality + 1;
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (Items[i].Name != "Sulfuras, Hand of Ragnaros")
-            {
-                Items[i].SellIn = Items[i].SellIn - 1;
-            }
-
-            if (Items[i].SellIn < 0)
-            {
-                if (Items[i].Name != "Aged Brie")
-                {
-                    if (Items[i].Name != "Backstage passes to a TAFKAL80ETC concert")
-                    {
-                        if (Items[i].Quality > 0)
-                        {
-                            if (Items[i].Name != "Sulfuras, Hand of Ragnaros")
-                            {
-                                Items[i].Quality = Items[i].Quality - 1;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        Items[i].Quality = Items[i].Quality - Items[i].Quality;
-                    }
+                    qualityVariation = -2;
                 }
                 else
                 {
-                    if (Items[i].Quality < 50)
-                    {
-                        Items[i].Quality = Items[i].Quality + 1;
-                    }
+                    qualityVariation = -1;
                 }
             }
+
+            // On ne touche pas aux items légendaires
+            if (!fixedQuality)
+            {
+                //On applique le changement en prenant en compte les limites autorisées
+                item.Quality += qualityVariation;
+
+                if (item.Quality < 0)
+                {
+                    item.Quality = 0;
+                }
+
+                if (item.Quality > 50)
+                {
+                    item.Quality = 50;
+                }                
+            }
+
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace GildedRoseKata;
 
@@ -26,15 +27,25 @@ public class Program
             {
                 Name = "Backstage passes to a TAFKAL80ETC concert",
                 SellIn = 10,
-                Quality = 49
+                //La qualité ne pouvant depasser 50, cet exemple est peu interessant, j'utilise donc une autre valeur en Debug
+#if DEBUG
+                Quality = 20 
+#else
+                Quality = 49 
+#endif
             },
             new Item
             {
                 Name = "Backstage passes to a TAFKAL80ETC concert",
                 SellIn = 5,
-                Quality = 49
+                //La qualité ne pouvant depasser 50, cet exemple est peu interessant, j'utilise donc une autre valeur en Debug
+#if DEBUG
+                Quality = 20 
+#else
+                Quality = 49 
+#endif
             },
-            // this conjured item does not work properly yet
+
             new Item {Name = "Conjured Mana Cake", SellIn = 3, Quality = 6}
         };
 
@@ -50,9 +61,11 @@ public class Program
         {
             Console.WriteLine("-------- day " + i + " --------");
             Console.WriteLine("name, sellIn, quality");
-            for (var j = 0; j < items.Count; j++)
+            
+            //L'ordonnancement par nom puis SellIn améliore la lisibilité
+            foreach (Item item in items.OrderBy(i=>i.Name).ThenBy(i=>i.SellIn)) 
             {
-                Console.WriteLine(items[j].Name + ", " + items[j].SellIn + ", " + items[j].Quality);
+                Console.WriteLine(item.Name + ", " + item.SellIn + ", " + item.Quality);
             }
             Console.WriteLine("");
             app.UpdateQuality();
